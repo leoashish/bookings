@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
+	"github.com/leoashish99/bookings/internal/models"
 	"log"
 	"net/http"
 	"time"
@@ -17,7 +19,23 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+	error := run()
+	if error != nil {
+		log.Fatal(error)
+	}
 
+	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
+	// http.ListenAndServe(portNumber, nil)
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+	err := srv.ListenAndServe()
+	log.Fatal(err)
+}
+func run() error {
+	//What I am going to put in the session
+	gob.Register(models.Reservation{})
 	//Change this to true in Production
 	//Variable shadowing
 	app.InProduction = true
@@ -33,6 +51,7 @@ func main() {
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("Cannot create template cache!!!")
+		return err
 	}
 	app.TemplateCache = tc
 
@@ -42,21 +61,5 @@ func main() {
 	handlers.NewHandlers(repo)
 
 	render.NewTemplate(&app)
-	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
-	// http.ListenAndServe(portNumber, nil)
-	srv := &http.Server{
-		Addr:    portNumber,
-		Handler: routes(&app),
-	}
-	err = srv.ListenAndServe()
-	log.Fatal(err)
+	return err
 }
-
-// func Routes(app *config.AppConfig) http.Handler {
-// 	mux := pat.New()
-
-// 	mux.Get("/", http.HandlerFunc(handlers.Repo.Home))
-// 	mux.Get("/about", http.HandlerFunc(handlers.Repo.About))
-
-// 	return mux
-// }

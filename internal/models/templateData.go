@@ -1,6 +1,8 @@
 package models
 
-//Template data holds data send from the handler to Template
+import "github.com/leoashish99/bookings/internal/forms"
+
+// Template data holds data send from the handler to Template
 type TemplateData struct {
 	StringMap map[string]string
 	IntMap    map[string]int
@@ -10,4 +12,5 @@ type TemplateData struct {
 	Flash     string
 	Warning   string
 	Error     string
+	Form      *forms.Form
 }
