@@ -1,0 +1,11 @@
+go build -o bookings cmd/web/.
+./bookings
+
+
+
+Publishable Key
+pk_test_51Jgl6tSBG66INWfislqBrPcA1UbvcZs4degFw2m5iVbgawyKHbNgnKQhEB3uSC9ToGQpo9P6GybG6Hhs7mYNdU3p00HYr1S1b2
+
+
+Secret Key
+sk_test_51Jgl6tSBG66INWfi89iKKuWZwk4kxpbxqd1ClznK7MbAmk26SgYyu1JX8Q3yr8R5j9Lp1k611ESmQ0pEO4FxvhWM00FueaPDup
