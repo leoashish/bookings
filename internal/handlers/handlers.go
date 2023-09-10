@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/leoashish99/bookings/internal/driver"
 	"github.com/leoashish99/bookings/internal/forms"
@@ -80,11 +82,32 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//parsing the start date and end date
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, sd)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	endDate, err := time.Parse(layout, ed)
+
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+	roomId, err := strconv.Atoi(r.Form.Get("room_id"))
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Phone:     r.Form.Get("phone"),
 		Email:     r.Form.Get("email"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		RoomID:    roomId,
 	}
 
 	form := forms.New(r.PostForm)
@@ -99,6 +122,26 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			Form: form,
 			Data: data,
 		})
+	}
+	newReservationId, err := m.DB.InsertReservation(reservation)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	roomRestriction := models.RoomRestrictions{
+		StartDate:     startDate,
+		EndDate:       endDate,
+		RoomId:        roomId,
+		ReservationId: newReservationId,
+		RestrictionId: 1,
+		Room:          models.Room{},
+		Reservation:   models.Reservation{},
+		Restriction:   models.Restriction{},
+	}
+	err = m.DB.InsertRoomRestrictions(roomRestriction)
+
+	if err != nil {
+		helpers.ServerError(w, err)
 	}
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
