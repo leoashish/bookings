@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/leoashish99/bookings/internal/models"
 	"html/template"
 	"log"
 
@@ -18,4 +19,5 @@ type AppConfig struct {
 	ErrorLog      *log.Logger
 	InProduction  bool
 	Session       *scs.SessionManager
+	MailChan      chan models.MailData
 }

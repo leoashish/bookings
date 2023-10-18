@@ -30,6 +30,10 @@ func main() {
 		log.Fatal(error)
 	}
 	defer db.SQL.Close()
+	defer close(app.MailChan)
+
+	ListenForMail()
+	log.Println("Listening for emails!!")
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 	// http.ListenAndServe(portNumber, nil)
@@ -46,6 +50,10 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Restriction{})
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
+
+	mailChan := make(chan models.MailData)
+
+	app.MailChan = mailChan
 	//Change this to true in Production
 	//Variable shadowing
 	app.InProduction = false
@@ -76,6 +84,7 @@ func run() (*driver.DB, error) {
 	app.UseCache = false
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
+		fmt.Println(err)
 		log.Fatal("Cannot create template cache!!!")
 		return nil, err
 	}

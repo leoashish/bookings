@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <title>My Nice Page</title>
-
+        <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
               integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
               crossorigin="anonymous">
@@ -16,7 +16,8 @@
               href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.2/dist/css/datepicker-bs4.min.css">
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+
+
 
         <style>
             .btn-outline-secondary {
@@ -75,6 +76,22 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/contact">Contact</a>
                 </li>
+                <li class="nav-item">
+                    {{if  .IsAuthenticated}}
+                         <li class="nav-item dropdown">
+                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Admin
+                             </a>
+                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item" href="/admin/dashboard">Admin Dashboard</a>
+                                <a class="dropdown-item" href="/user/logout">Logout</a>
+                             </div>
+                             </li>
+                    {{else}}
+                         <a class="nav-link" href="/user/login">Login</a>
+                    {{end}}
+                </li>
 
             </ul>
         </div>
@@ -108,9 +125,9 @@
             integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.2/dist/js/datepicker-full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
     <script src="https://unpkg.com/notie"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.js"></script>
-
 
     {{block "js" .}}
 
@@ -226,16 +243,21 @@
 
             async function custom(c) {
                 const {
+                    icon= "",
                     msg = "",
                     title = "",
+                    showConfirmButton=true,
                 } = c;
 
                 const {value: result} = await Swal.fire({
+                    icon :  icon,
                     title: title,
                     html: msg,
                     backdrop: false,
                     focusConfirm: false,
                     showCancelButton: true,
+                    showConfirmButton : showConfirmButton,
+                    timer: 3000,
                     willOpen: () => {
                         if (c.willOpen !== undefined) {
                             c.willOpen();
@@ -245,12 +267,6 @@
                         if (c.didOpen !== undefined) {
                             c.didOpen();
                         }
-                    },
-                    preConfirm: () => {
-                        return [
-                            document.getElementById('start').value,
-                            document.getElementById('end').value
-                        ]
                     }
                 })
 
